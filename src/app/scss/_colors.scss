@@ -27,11 +27,12 @@ html {
     background-color: $secondary;
 
     a {
-      color: $aqua_dk;
-      background-color: transparent;// $white; //colors.$psylo_dk;
-      border: 3px dotted $aqua_dk;
+      color: $psylo_dk;
+      background-color: #ffffff99;// $white; //colors.$psylo_dk;
+      border: 3px dotted $psylo_dk;
       &:visited {
-        color: $aqua; //$psylo_lt;
+        color: $psylo_lt;
+        border-color: $psylo_lt;
       }
     }
   }

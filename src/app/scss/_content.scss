@@ -1,0 +1,40 @@
+@use 'colors';
+
+.bg_primary {
+  background-color: colors.$primary;
+}
+.bg_secondary {
+  background-color: colors.$secondary;
+}
+.bg_tertiary {
+  background-color: colors.$tertiary;
+}
+.bg_base {
+  background-color: colors.$base;
+}
+.bg_text {
+  background-color: colors.$text;
+}
+.bg_cta1 {  
+  background-color: colors.$cta1;
+}
+.bg_cta2 {  
+  background-color: colors.$cta2;
+}
+
+
+//@mixin contentBox($bgColor: colors.$primary, $borderColor1: colors.$secondary, $borderColor2: colors.$tertiary, $text: colors.$text, $cta: colors.$cta1) {
+@mixin contentBox($bgColor: colors.$primary, $text: colors.$text, $cta1: colors.$cta1, $cta2: colors.$cta2, $borderRadius: clamp(1rem, 2vw, 2rem)) {
+  position: relative;
+  padding: clamp(2.5rem, 2.25vw, 4rem) clamp(2rem, 2vw, 4rem);
+  background-color: $bgColor;
+  color: $text;
+  border-radius: $borderRadius;
+  box-shadow: 4px 4px 10px -2px colors.$black;
+  text-shadow: 2px 2px 2px colors.$black;
+  text-align: center;
+
+  a {
+    white-space: nowrap;
+  }
+}

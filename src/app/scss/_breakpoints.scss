@@ -1,0 +1,243 @@
+@use './colors';
+@use 'sass:math';
+@use 'sass:map';
+@forward 'sass:math';
+@forward 'sass:map';
+
+// Widths for responsive design
+$breakpoints: (
+  'zero': 0,
+  'min': 320,
+  'xs': 440,
+  'sm': 600,
+  'md': 840,
+  'lg': 1024,
+  'xl': 1280,
+  'ws': 1440,
+  'hd': 1920,
+  '2k': 2560,
+  '4k': 3840,
+);
+
+// For mapCreate
+// TODO - math for this
+$scalars: (
+  'zero': 1, 
+  'min': 0.96, 
+  'xs': 0.86, 
+  'sm': 0.78, 
+  'md': 0.66, 
+  'lg': 0.56, 
+  'xl': 0.48, 
+  'ws': 0.40, 
+  'hd': 0.32, 
+  '2k': 0.26,
+  '4k': 0.22
+  );
+
+@mixin media-breakpoint-gte($bp) {  
+  $bpVal: map-get($breakpoints, $bp) + 'px';
+  @media (min-width: $bpVal) {
+    @content;
+  }
+}
+
+@mixin is-portrait() {
+  @media (orientation: portrait) {
+    @content;
+  }
+}
+
+
+//
+// Create a scaled property based on initial value
+//
+@mixin bpProp($property, $initialValue) {
+  $sizeMap: mapCreate($initialValue);
+  @include breakpointProp($property, $sizeMap);
+}
+//
+// Create a map of scaled values for each breakpoint
+//
+@function mapCreate($zeroValue) {
+  $newMap: ();
+  @each $bp, $val in $breakpoints {
+    $scaledVal: $zeroValue * map.get($scalars, $bp);
+    $newMap: map.set($newMap, $bp, $scaledVal);
+  }
+  @return $newMap;
+}
+//
+// Generate a new map with each value modified by scalar
+//
+@function mapApplyScalar($scalar, $map) {
+  $mapped: ();
+  @each $key, $val in $map {
+    $mappedVal: $val * $scalar;
+    $mapped: map.set($mapped, $key, $mappedVal);
+  }
+  @return ($mapped);
+}
+
+//
+// Wrap the values of a map with $modifier and parentheses
+// - e.g. "translateZ" -> "translateZ(<val>)"
+//,
+@function mapWrapValues($modifier, $map) {
+  $mapped: ();
+  @each $key, $val in $map {
+    $mappedVal: "#{$modifier}(#{$val})";
+    //@warn "5 ### " + $mappedVal;
+    $mapped: map.set($mapped, $key, $mappedVal);
+  }
+  //@warn "4 ### " + inspect($mapped);
+  @return ($mapped);
+}
+
+//
+// Generates a set of media-queries for the provided property and list of values based on $breakpoints array
+//
+@mixin breakpointProp($prop, $valuesList) {
+  // Default to min value
+  #{$prop}: #{map.get($map: $valuesList, $key: "zero")};
+  // For each provided bp generate a value for prop in respective media query
+  @each $key, $val in $valuesList {
+    @if $key != 'zero' {
+      @include media-breakpoint-gte($key) {
+        #{$prop}: #{$val};
+      }
+    }
+  }
+}
+
+//
+// Generates a set of media-queries for the provided property and list of values based on $breakpoints array
+// - Expected format:
+//   map: (
+//     <property>: (
+//       <breakpoint>: <value>
+//
+@mixin breakpointProps($propsMap) {
+  // To avoid repeated media-queries for each prop, build a map of properties at each bp
+  $mediaQueryMap: ();
+  // Loop all breakpoints and add any props with value at bp
+  @each $bp in $breakpoints {
+    // list of props in current bp
+    $bpProps: ();
+    // bp key text, e.g. "xs"
+    $bpKey: nth(
+      $list: $bp,
+      $n: 1,
+    );
+    // Loop all provided props and add value if one exists for bp
+    @each $prop, $valueLists in $propsMap {
+      @if map.has-key($valueLists, $bpKey) {
+        $valueAtBp: map.get($valueLists, $bpKey);
+        $bpProps: map.set($bpProps, $prop, $valueAtBp);
+      }
+    }
+    $mediaQueryMap: map.set($mediaQueryMap, $bpKey, $bpProps);
+  }
+
+  @each $breakpoint, $propsList in $mediaQueryMap {
+    //
+    // TODO: defaut value w/o media-query?
+    //
+    @include media-breakpoint-gte($breakpoint) {
+      @each $property, $value in $propsList {
+        #{$property}: #{$value};
+      }
+    }
+  }
+}
+
+//
+// Generate a set of properties for orientations and breakpoints
+//
+@mixin orientationBpProp($property, $orientations) {
+  @each $orientation, $breakpointList in $orientations {
+    //
+    // TODO: defaut value w/o media-query?
+    //
+    @media screen and (orientation: #{$orientation}) {
+      @each $breakpoint, $valuesList in $breakpointList {
+        @include media-breakpoint-gte($breakpoint) {
+          @each $value in $valuesList {
+            #{$property}: #{$value};
+          }
+        }
+      }
+    }
+  }
+}
+
+//
+// Generate an orientation-breakpoint media-query set from each property in $map
+//  Expected format:
+//    (property)
+//      (orientation)
+//        (breakpoint | value)
+//
+@mixin orientationBpProps($map) {
+  // for each property, check for orientation values and create a set of media queries for breakpoints
+  @each $property, $orientations in $map {
+    @include orientationBpProp($property, $orientations);
+  }
+}
+
+//
+// Loop over each orientation's breakpoint value map
+// - NOTE: Must include "using ($bp,$val)" at the end of the mixin call
+//
+@mixin orientationBpEach($map) {
+  @each $orientation, $map in $map {
+    @each $bp, $val in $map {
+      @content ($bp, $val);
+    }
+  }
+}
+
+//
+// Apply a scalar to a nested portrait/landscape breakpoint map
+//
+@function getScaledOrientationBpMap($scalar, $map) {
+  @if not map.has-key($map, $portraitKey) {
+    @error "Map missing portrait values";
+  }
+  @if not map.has-key($map, $landscapeKey) {
+    @error "Map missing landscape values";
+  }
+  $portrait: map.get($map, $portraitKey);
+  $landscape: map.get($map, $landscapeKey);
+  $mapPortrait: mapApplyScalar($scalar, $portrait);
+  $mapLandscape: mapApplyScalar($scalar, $landscape);
+  $newMap: (
+    "portrait": $mapPortrait,
+    "landscape": $mapLandscape,
+  );
+  @return $newMap;
+}
+
+//
+// Wrap values of a nested portrait/landscape breakpoint map
+// NOTE: Assumes format of "modifier(value)" with parentheses
+//
+@function getWrappedOrientationBpMap($modifier, $map) {
+  @if not map.has-key($map, $portraitKey) {
+    @error "Map missing portrait values";
+  }
+  @if not map.has-key($map, $landscapeKey) {
+    @error "Map missing landscape values";
+  }
+  $portrait: map.get($map, $portraitKey);
+  $landscape: map.get($map, $landscapeKey);
+
+  $mapPortrait: mapWrapValues($modifier, $portrait);
+  $mapLandscape: mapWrapValues($modifier, $landscape);
+  $newMap: (
+    "portrait": $mapPortrait,
+    "landscape": $mapLandscape,
+  );
+  @return $newMap;
+}
+

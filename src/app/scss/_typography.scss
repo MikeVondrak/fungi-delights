@@ -1,0 +1,28 @@
+@use 'colors';
+
+// Base font size
+html {
+  body {
+    font-size: 2vw;
+    text-shadow: 2px 2px 8px colors.$black;
+
+    h1, h2, h3, h4, h5 {
+      padding: 0;
+      margin: 0 0 1vw;
+    }
+
+    h1 {
+      font-size: 4vw;
+      margin-bottom: 1vw;
+    }
+
+    a, p, ul, ol, li, header, footer, main {
+      margin: 0 0 1vw;
+      padding: 0;
+      font-size: clamp(1.25rem, 1.5vw, 3rem);
+    }
+    a {
+      text-shadow: none;
+    }
+  }
+}

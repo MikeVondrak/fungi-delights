@@ -1,0 +1,83 @@
+//
+// Visually hidden
+//
+.hidden {
+  display: none;
+  // TODO - add props for accessibility
+}
+//
+// Prevent wrapping
+//
+.nowrap {
+  white-space: nowrap;
+}
+
+//
+// Applies 2 text outlines of provided colors
+//
+@mixin text-double-outline($text, $colorText, $colorOutline1, $colorOutline2) {
+  position: relative;
+  z-index: 0;
+  color: $colorText;
+  -webkit-text-stroke: 0.05em $colorOutline1;
+  &::after {
+    position: absolute;
+    content: $text;
+    -webkit-text-stroke: 0.15em $colorOutline2;
+    top: 0; right: 0rem; bottom: 0; left: 0;
+    z-index: -1;
+  }
+}
+
+/**
+  Converts unitless numbers or px values to rem
+  Example:
+    width: pxToRem(48px);         => width: 3rem;
+    padding: pxToRem(8 16 24 32); => padding: 0.5rem 1rem 1.5rem 2rem;
+*/
+@function pxToRem($pxValues) {
+  $remValues: (); // empty list
+  $base: stripUnit($base-font-size);
+
+  @each $pxValue in $pxValues {
+    @if type-of($pxValue) != 'number' or (not unitless($pxValue) and unit($pxValue) != 'px') {
+      @error "Number or px value required, invalid input: #{$pxValue}";
+    }
+    $pxValue: stripUnit($pxValue); // remove 'px' unit if present
+    $remValues: append($remValues,  ($pxValue / $base) + 0rem);
+  }
+
+  // for a single value return the numeric variable instead of a string to allow use in calculations
+  @if length($remValues == 1) {
+    @return nth($remValues, 1);
+  }
+  @return $remValues;
+}
+
+/**
+  Remove unit from value list
+*/
+@function stripUnits($values) {
+  $unitless: ();
+
+  @if length($list: $values) == 1 {
+    @return stripUnit($values);
+  }
+  @else {
+    @each $val in $values {      
+      $unitless: append($unitless, stripUnit($val));
+    }
+    @return $unitless;
+  }
+}
+
+/**
+  Remove unit from value e.g. 16px => 16, 2rem => 2
+*/
+@function stripUnit($value) {
+  @if type-of($value) != 'number' {
+    @error "Number value required, invalid input: #{$value}";
+  }
+  $unitless: $value / ($value * 0 + 1); // remove unit dividing by 1unit
+  @return $unitless;
+}

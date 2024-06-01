@@ -1,0 +1,52 @@
+@use "./scss/lib";
+
+#site-container {
+  overflow: scroll;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-image: 
+    radial-gradient(ellipse at 10%, transparent 60%, lib.$black),
+    radial-gradient(ellipse at 70% 70%, transparent 60%, lib.$black),
+    url("/images/Popcorn_Bg.jpg");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  img {
+    display: block;
+    width: 60vw;
+  }
+
+  .content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: clamp(20rem, 26vw, 38rem);
+    .content-box {
+      position: relative;
+      margin-bottom: clamp(-2rem, -5vw, -4rem);
+    }
+    
+    .content-box-1 {
+      @include lib.contentBox();
+      right: 3vw;
+    }
+    .content-box-2 {
+      @include lib.contentBox(lib.$secondary);
+      left: 8vw;
+    }
+    .content-box-3 {
+      @include lib.contentBox(lib.$tertiary);
+      right: 0;
+      margin-bottom: 10vw;
+    }
+  }
+}

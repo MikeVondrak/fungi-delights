@@ -1,0 +1,38 @@
+// Brand colors
+$psylo_lt: #324357;
+$psylo_dk: #101A28;
+$popcorn: #E8C02D;
+$salmon: #B33951;
+$aqua: #10d9c4;
+$aqua_dk: #119b8d;
+$psylo_bright: #376EAE;
+
+// Utility colors
+$white: #fff;
+$black: #000;
+
+$base: $psylo_dk;
+$text: $white;
+$primary: $psylo_lt;
+$secondary: $salmon;
+$tertiary: $popcorn;
+$cta1: $aqua;
+$cta2: $psylo_bright;
+
+
+html {
+  color: $white;
+  background-color: $black;
+  body {
+    background-color: $secondary;
+
+    a {
+      color: $aqua_dk;
+      background-color: transparent;// $white; //colors.$psylo_dk;
+      border: 3px dotted $aqua_dk;
+      &:visited {
+        color: $aqua; //$psylo_lt;
+      }
+    }
+  }
+}

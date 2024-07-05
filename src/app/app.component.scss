@@ -1,8 +1,8 @@
 @use "./scss/lib";
 
 #site-container {
-  overflow: scroll;
-  position: fixed;
+  //overflow: scroll;
+  //position: fixed;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -12,6 +12,7 @@
   bottom: 0;
   left: 0;
   right: 0;
+  padding-top: 4vw;
   background-image: 
     radial-gradient(ellipse at 10%, transparent 60%, lib.$black),
     radial-gradient(ellipse at 70% 70%, transparent 60%, lib.$black),
@@ -37,11 +38,11 @@
     
     .content-box-1 {
       @include lib.contentBox();
-      right: 3vw;
+      right: 6vw;
     }
     .content-box-2 {
       @include lib.contentBox(lib.$secondary);
-      left: 8vw;
+      left: 6vw;
     }
     .content-box-3 {
       @include lib.contentBox(lib.$tertiary);
